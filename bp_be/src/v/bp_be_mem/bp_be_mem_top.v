@@ -63,6 +63,7 @@ module bp_be_mem_top
    , input [csr_cmd_width_lp-1:0]            csr_cmd_i
    , input                                   csr_cmd_v_i
    , output [dword_width_p-1:0]              csr_data_o
+   , output logic                            csr_exc_o
 
    , input                                   chk_poison_ex_i
 
@@ -208,16 +209,6 @@ bsg_dff_chain
    ,.data_o(vaddr_mem3)
    );
 
-bp_be_ecode_dec_s exception_ecode_dec_li;
-bp_be_ecode_dec_s ptw_exception_ecode_dec_li;
-
-assign ptw_exception_ecode_dec_li =
-  '{instr_page_fault : ptw_instr_page_fault_v
-    ,load_page_fault : ptw_load_page_fault_v
-    ,store_page_fault: ptw_store_page_fault_v
-    ,default: '0
-    };
-
 wire ptw_page_fault_v  = ptw_instr_page_fault_v | ptw_load_page_fault_v | ptw_store_page_fault_v;
 wire exception_v_li = commit_pkt.v | ptw_page_fault_v;
 wire [vaddr_width_p-1:0] exception_pc_li = ptw_page_fault_v ? ptw_tlb_w_pc : commit_pkt.pc;
@@ -226,23 +217,6 @@ wire [vaddr_width_p-1:0] exception_npc_li = ptw_page_fault_v ? '0 : commit_pkt.n
 wire [vaddr_width_p-1:0] exception_vaddr_li = ptw_page_fault_v ? ptw_tlb_w_vaddr : mem_resp.vaddr;
 wire [instr_width_p-1:0] exception_instr_li = commit_pkt.instr;
 // TODO: exception priority is non-compliant with the spec.
-assign exception_ecode_dec_li =
-  '{instr_misaligned : instr_misaligned_lo
-    ,instr_fault     : instr_access_fault_lo
-    ,illegal_instr   : csr_cmd_v_i & ((csr_cmd.csr_op == e_op_illegal_instr) || csr_illegal_instr_lo)
-    ,breakpoint      : ebreak_lo
-    ,load_misaligned : 1'b0 // TODO: Need to detect this
-    ,load_fault      : load_access_fault_mem3
-    ,store_misaligned: 1'b0 // TODO: Need to detect this
-    ,store_fault     : store_access_fault_mem3
-    ,ecall_u_mode    : csr_cmd_v_i & (csr_cmd.csr_op == e_ecall) & (priv_mode_lo == `PRIV_MODE_U)
-    ,ecall_s_mode    : csr_cmd_v_i & (csr_cmd.csr_op == e_ecall) & (priv_mode_lo == `PRIV_MODE_S)
-    ,ecall_m_mode    : csr_cmd_v_i & (csr_cmd.csr_op == e_ecall) & (priv_mode_lo == `PRIV_MODE_M)
-    ,instr_page_fault: instr_page_fault_lo
-    ,load_page_fault : load_page_fault_mem3
-    ,store_page_fault: store_page_fault_mem3
-    ,default: '0
-    };
 
 bp_be_csr
  #(.bp_params_p(bp_params_p))
@@ -257,6 +231,7 @@ bp_be_csr
    ,.csr_cmd_i(csr_cmd_i)
    ,.csr_cmd_v_i(csr_cmd_v_i)
    ,.csr_data_o(csr_data_o)
+   ,.csr_exc_o(csr_exc_o)
    ,.illegal_instr_o(csr_illegal_instr_lo)
 
    ,.hartid_i(cfg_bus.core_id)
@@ -267,7 +242,6 @@ bp_be_csr
    ,.exception_npc_i(exception_npc_li)
    ,.exception_vaddr_i(exception_vaddr_li)
    ,.exception_instr_i(exception_instr_li)
-   ,.exception_ecode_dec_i(exception_ecode_dec_li | ptw_exception_ecode_dec_li)
    ,.fencei_v_i(mem_resp.fencei_v)
 
    ,.timer_irq_i(timer_irq_i)
@@ -496,7 +470,7 @@ assign dtlb_w_vtag  = ptw_tlb_w_vaddr.tag;
 assign dtlb_w_entry = ptw_tlb_w_entry;
 
 // MMU response connections
-assign mem_resp.miss_v             = mmu_cmd_v_rr & ~dcache_v & ~dcache_fencei_v & ~|exception_ecode_dec_li;
+assign mem_resp.miss_v             = mmu_cmd_v_rr & ~dcache_v & ~dcache_fencei_v & ~store_page_fault_mem3 & ~load_page_fault_mem3 & ~store_access_fault_v & ~load_access_fault_mem3;
 assign mem_resp.fencei_v           = dcache_fencei_v;
 assign mem_resp.store_page_fault   = store_page_fault_mem3;
 assign mem_resp.load_page_fault    = load_page_fault_mem3;

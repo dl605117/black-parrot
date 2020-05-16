@@ -24,6 +24,7 @@ module bp_be_csr
     , input [csr_cmd_width_lp-1:0]      csr_cmd_i
     , input                             csr_cmd_v_i
     , output logic [dword_width_p-1:0]  csr_data_o
+    , output logic                      csr_exc_o
     , output logic                      illegal_instr_o
 
     // Misc interface
@@ -36,7 +37,6 @@ module bp_be_csr
     , input [vaddr_width_p-1:0]         exception_npc_i
     , input [vaddr_width_p-1:0]         exception_vaddr_i
     , input [instr_width_p-1:0]         exception_instr_i
-    , input [ecode_dec_width_lp-1:0]    exception_ecode_dec_i
 
     , input                             timer_irq_i
     , input                             software_irq_i
@@ -79,7 +79,6 @@ assign cfg_bus_csr_cmd_li.data     = cfg_bus_cast_i.csr_r_v ? '0 : cfg_bus_cast_
 
 assign cfg_bus_cast_i = cfg_bus_i;
 assign csr_cmd = (cfg_bus_cast_i.csr_r_v | cfg_bus_cast_i.csr_w_v) ? cfg_bus_csr_cmd_li : csr_cmd_i;
-assign exception_ecode_dec_cast_i = exception_ecode_dec_i;
 assign trap_pkt_o = trap_pkt_cast_o;
 
 // The muxed and demuxed CSR outputs
@@ -180,6 +179,24 @@ wire [15:0] interrupt_icode_dec_li =
    ,1'b0
    };
 
+assign exception_ecode_dec_cast_i =
+    '{instr_misaligned  : csr_cmd_v_i & (csr_cmd.csr_op == e_op_instr_misaligned)
+      ,instr_fault      : csr_cmd_v_i & (csr_cmd.csr_op == e_op_instr_access_fault)
+      ,illegal_instr    : csr_cmd_v_i & ((csr_cmd.csr_op == e_op_illegal_instr) || illegal_instr_o)
+      ,breakpoint       : csr_cmd_v_i & (csr_cmd.csr_op == e_ebreak)
+      ,load_misaligned  : csr_cmd_v_i & (csr_cmd.csr_op == e_op_load_misaligned)
+      ,load_fault       : csr_cmd_v_i & (csr_cmd.csr_op == e_op_load_access_fault)
+      ,store_misaligned : csr_cmd_v_i & (csr_cmd.csr_op == e_op_store_misaligned)
+      ,store_fault      : csr_cmd_v_i & (csr_cmd.csr_op == e_op_store_access_fault)
+      ,ecall_u_mode     : csr_cmd_v_i & (csr_cmd.csr_op == e_ecall) & (priv_mode_o == `PRIV_MODE_U)
+      ,ecall_s_mode     : csr_cmd_v_i & (csr_cmd.csr_op == e_ecall) & (priv_mode_o == `PRIV_MODE_S)
+      ,ecall_m_mode     : csr_cmd_v_i & (csr_cmd.csr_op == e_ecall) & (priv_mode_o == `PRIV_MODE_M)
+      ,instr_page_fault : csr_cmd_v_i & (csr_cmd.csr_op == e_op_instr_page_fault)
+      ,load_page_fault  : csr_cmd_v_i & (csr_cmd.csr_op == e_op_load_page_fault)
+      ,store_page_fault : csr_cmd_v_i & (csr_cmd.csr_op == e_op_store_page_fault)
+      ,default : '0
+      };
+
 logic [3:0] exception_ecode_li;
 logic       exception_ecode_v_li;
 bsg_priority_encode 
@@ -187,7 +204,7 @@ bsg_priority_encode
    ,.lo_to_hi_p(1)
    )
  mcause_exception_enc
-  (.i(exception_ecode_dec_i)
+  (.i(exception_ecode_dec_cast_i)
    ,.addr_o(exception_ecode_li)
    ,.v_o(exception_ecode_v_li)
    );
@@ -371,6 +388,12 @@ always_comb
               dcsr_li.prv    = priv_mode_r;
             end
         end
+      else if (csr_cmd.csr_op inside {e_op_instr_misaligned, e_op_instr_access_fault, e_op_illegal_instr,
+          e_ebreak, e_op_load_misaligned, e_op_load_access_fault, e_op_store_misaligned, e_op_store_access_fault,
+          e_ecall, e_op_instr_page_fault , e_op_load_page_fault, e_op_store_page_fault})
+        begin
+
+        end
       else if (csr_cmd.csr_op == e_sfence_vma)
         begin
           if (is_s_mode & mstatus_lo.tvm)
@@ -475,11 +498,6 @@ always_comb
       else if (csr_cmd.csr_op == e_wfi)
         begin
           illegal_instr_o = mstatus_lo.tw;
-        end
-      else if (csr_cmd.csr_op inside {e_ebreak, e_ecall})
-      begin
-          // ECALL is implemented as part of the exception cause vector
-          // EBreak is implemented below
         end
       // Check for access violations
       else if (is_s_mode & mstatus_lo.tvm & (csr_cmd.csr_addr == `CSR_ADDR_SATP))
@@ -670,6 +688,9 @@ assign mstatus_mxr_o = mstatus_lo.mxr;
 assign single_step_o = ~is_debug_mode & dcsr_lo.step;
 
 assign csr_data_o = dword_width_p'(csr_data_lo);
+assign csr_exc_o  = |{trap_pkt_cast_o.exception
+                      ,trap_pkt_cast_o._interrupt
+                      };
 
 assign cfg_csr_data_o = csr_data_lo;
 assign cfg_priv_data_o = priv_mode_r;

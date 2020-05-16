@@ -40,6 +40,7 @@ module bp_be_pipe_sys
    , output logic [csr_cmd_width_lp-1:0]  csr_cmd_o
    , output                               csr_cmd_v_o
    , input logic [dword_width_p-1:0]      csr_data_i
+   , input logic                          csr_exc_i
 
    , input [mem_resp_width_lp-1:0]        mem_resp_i
 
@@ -92,15 +93,46 @@ always_comb
   begin
     csr_cmd_lo = csr_cmd_r;
     csr_cmd_lo.data = (csr_cmd_lo.csr_op inside {e_itlb_fill, e_dtlb_fill}) ? mem_resp.vaddr : csr_cmd_r.data;
+    if (csr_cmd_lo.csr_op inside {e_itlb_fill, e_dtlb_fill})
+      begin
+        csr_cmd_lo.data = mem_resp.vaddr;
+      end
+    else if (ptw_pkt.instr_page_fault_v)
+      begin
+        csr_cmd_lo.csr_op = e_op_instr_page_fault;
+      end
+    else if (ptw_pkt.load_page_fault_v | mem_resp.load_page_fault)
+      begin
+        csr_cmd_lo.csr_op = e_op_load_page_fault;
+      end
+    else if (ptw_pkt.store_page_fault_v | mem_resp.store_page_fault)
+      begin
+        csr_cmd_lo.csr_op = e_op_store_page_fault;
+      end
+    else if (mem_resp.load_misaligned)
+      begin
+        csr_cmd_lo.csr_op = e_op_load_misaligned;
+      end
+    else if (mem_resp.load_access_fault)
+      begin
+        csr_cmd_lo.csr_op = e_op_load_access_fault;
+      end
+    else if (mem_resp.store_misaligned)
+      begin
+        csr_cmd_lo.csr_op = e_op_store_misaligned;
+      end
+    else if (mem_resp.store_access_fault)
+      begin
+        csr_cmd_lo.csr_op = e_op_store_access_fault;
+      end
   end
 assign csr_cmd_o = csr_cmd_lo;
-assign csr_cmd_v_o = (csr_cmd_v_lo & ~kill_ex3_i);
+assign csr_cmd_v_o = (csr_cmd_v_lo & ~kill_ex3_i) | ptw_pkt.instr_page_fault_v | ptw_pkt.load_page_fault_v | ptw_pkt.store_page_fault_v;
 
 assign data_o           = csr_data_i;
-assign exc_v_o          = 1'b0;
+assign exc_v_o          = csr_exc_i;
 assign miss_v_o         = 1'b0;
 assign mem_resp_ready_o = 1'b1;
-
 
 endmodule
 

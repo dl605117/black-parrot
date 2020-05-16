@@ -109,6 +109,7 @@ logic mmu_cmd_v, mmu_cmd_rdy;
 bp_be_csr_cmd_s csr_cmd;
 logic csr_cmd_v;
 logic [dword_width_p-1:0] csr_data;
+logic csr_exc;
 
 bp_be_mem_resp_s mem_resp;
 logic mem_resp_v, mem_resp_rdy;
@@ -201,6 +202,7 @@ bp_be_calculator_top
    ,.csr_cmd_o(csr_cmd)
    ,.csr_cmd_v_o(csr_cmd_v)
    ,.csr_data_i(csr_data)
+   ,.csr_exc_i(csr_exc)
 
    ,.mem_resp_i(mem_resp) 
    ,.mem_resp_v_i(mem_resp_v)
@@ -230,6 +232,7 @@ bp_be_mem_top
     ,.csr_cmd_i(csr_cmd)
     ,.csr_cmd_v_i(csr_cmd_v)
     ,.csr_data_o(csr_data)
+    ,.csr_exc_o(csr_exc)
 
     ,.mem_resp_o(mem_resp)
     ,.mem_resp_v_o(mem_resp_v)
