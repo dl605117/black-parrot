@@ -99,7 +99,7 @@ assign exc_v_o            = mem_resp_v_i & ((mem_resp.store_page_fault | mem_res
                                             | (mem_resp.load_access_fault | mem_resp.load_misaligned)
                                             );
 
-assign miss_v_o           = mem_resp_v_i & mem_resp.miss_v;
+assign miss_v_o           = mem_resp_v_i & (mem_resp.cache_miss_v | mem_resp.tlb_miss_v);
 assign mem_resp_ready_o   = 1'b1;
 
 // Set MMU cmd signal

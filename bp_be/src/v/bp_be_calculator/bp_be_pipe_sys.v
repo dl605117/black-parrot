@@ -92,7 +92,12 @@ bsg_shift_reg
 always_comb
   begin
     csr_cmd_lo = csr_cmd_r;
-    csr_cmd_lo.data = (csr_cmd_lo.csr_op inside {e_itlb_fill, e_dtlb_fill}) ? mem_resp.vaddr : csr_cmd_r.data;
+
+    if (mem_resp.tlb_miss_v)
+      begin
+        csr_cmd_lo.csr_op = e_dtlb_fill;
+      end
+
     if (csr_cmd_lo.csr_op inside {e_itlb_fill, e_dtlb_fill})
       begin
         csr_cmd_lo.data = mem_resp.vaddr;
@@ -127,7 +132,7 @@ always_comb
       end
   end
 assign csr_cmd_o = csr_cmd_lo;
-assign csr_cmd_v_o = (csr_cmd_v_lo & ~kill_ex3_i) | ptw_pkt.instr_page_fault_v | ptw_pkt.load_page_fault_v | ptw_pkt.store_page_fault_v;
+assign csr_cmd_v_o = (csr_cmd_v_lo & ~kill_ex3_i) | ptw_pkt.instr_page_fault_v | ptw_pkt.load_page_fault_v | ptw_pkt.store_page_fault_v | mem_resp.tlb_miss_v;
 
 assign data_o           = csr_data_i;
 assign exc_v_o          = csr_exc_i;

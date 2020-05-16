@@ -55,10 +55,7 @@ module bp_be_csr
     
     // FE Exceptions
     , output logic                      itlb_fill_o
-    , output logic                      instr_page_fault_o
-    , output logic                      instr_access_fault_o
-    , output logic                      instr_misaligned_o
-    , output logic                      ebreak_o
+    , output logic                      dtlb_fill_o
     );
 
 // Declare parameterizable structs
@@ -179,11 +176,12 @@ wire [15:0] interrupt_icode_dec_li =
    ,1'b0
    };
 
+wire ebreak_v_li = is_debug_mode | (is_m_mode & ~dcsr_lo.ebreakm) | (is_s_mode & ~dcsr_lo.ebreaks) | (is_u_mode & ~dcsr_lo.ebreaku);
 assign exception_ecode_dec_cast_i =
     '{instr_misaligned  : csr_cmd_v_i & (csr_cmd.csr_op == e_op_instr_misaligned)
       ,instr_fault      : csr_cmd_v_i & (csr_cmd.csr_op == e_op_instr_access_fault)
       ,illegal_instr    : csr_cmd_v_i & ((csr_cmd.csr_op == e_op_illegal_instr) || illegal_instr_o)
-      ,breakpoint       : csr_cmd_v_i & (csr_cmd.csr_op == e_ebreak)
+      ,breakpoint       : csr_cmd_v_i & (csr_cmd.csr_op == e_ebreak) & ebreak_v_li
       ,load_misaligned  : csr_cmd_v_i & (csr_cmd.csr_op == e_op_load_misaligned)
       ,load_fault       : csr_cmd_v_i & (csr_cmd.csr_op == e_op_load_access_fault)
       ,store_misaligned : csr_cmd_v_i & (csr_cmd.csr_op == e_op_store_misaligned)
@@ -368,25 +366,15 @@ always_comb
     sfence_v_o       = '0;
     
     itlb_fill_o           = '0;
-    instr_page_fault_o    = '0;
-    instr_access_fault_o  = '0;
-    instr_misaligned_o    = '0;
-    ebreak_o              = '0;
+    dtlb_fill_o           = '0;
 
     if (csr_cmd_v_i | cfg_bus_cast_i.csr_r_v | cfg_bus_cast_i.csr_w_v)
-      if (~is_debug_mode & (csr_cmd.csr_op == e_ebreak))
+      if (~ebreak_v_li & (csr_cmd.csr_op == e_ebreak))
         begin
-          ebreak_o = (is_m_mode & ~dcsr_lo.ebreakm) 
-                     | (is_s_mode & ~dcsr_lo.ebreaks) 
-                     | (is_u_mode & ~dcsr_lo.ebreaku);
-
-          if (~ebreak_o)
-            begin
-              debug_mode_n   = 1'b1;
-              dpc_li         = paddr_width_p'($signed(exception_pc_i));
-              dcsr_li.cause  = 1; // Ebreak
-              dcsr_li.prv    = priv_mode_r;
-            end
+          debug_mode_n   = 1'b1;
+          dpc_li         = paddr_width_p'($signed(exception_pc_i));
+          dcsr_li.cause  = 1; // Ebreak
+          dcsr_li.prv    = priv_mode_r;
         end
       else if (csr_cmd.csr_op inside {e_op_instr_misaligned, e_op_instr_access_fault, e_op_illegal_instr,
           e_ebreak, e_op_load_misaligned, e_op_load_access_fault, e_op_store_misaligned, e_op_store_access_fault,
@@ -446,17 +434,9 @@ always_comb
         begin
           itlb_fill_o = 1'b1;
         end
-      else if (csr_cmd.csr_op == e_op_instr_page_fault)
+      else if (csr_cmd.csr_op == e_dtlb_fill)
         begin
-          instr_page_fault_o = 1'b1;
-        end
-      else if (csr_cmd.csr_op == e_op_instr_access_fault)
-        begin
-          instr_access_fault_o = 1'b1;
-        end
-      else if (csr_cmd.csr_op == e_op_instr_misaligned)
-        begin
-          instr_misaligned_o = 1'b1;
+          dtlb_fill_o = 1'b1;
         end
       else if (csr_cmd.csr_op == e_op_take_interrupt)
         begin

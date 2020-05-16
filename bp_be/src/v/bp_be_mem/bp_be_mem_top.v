@@ -178,8 +178,7 @@ logic                     dcache_miss_lo;
 logic                     csr_illegal_instr_lo;
 logic [ptag_width_p-1:0]  satp_ppn_lo;
 logic                     mstatus_sum_lo, mstatus_mxr_lo, translation_en_lo;
-logic                     itlb_fill_lo, instr_page_fault_lo, instr_access_fault_lo, instr_misaligned_lo;
-logic                     ebreak_lo;
+logic                     itlb_fill_lo, dtlb_fill_lo;
 logic [rv64_priv_width_gp-1:0] priv_mode_lo;
 
 logic load_access_fault_v, load_access_fault_mem3, store_access_fault_v, store_access_fault_mem3;
@@ -194,7 +193,7 @@ logic is_store_r, is_store_rr;
 bp_be_mmu_vaddr_s vaddr_mem3;
 
 wire itlb_fill_cmd_v = itlb_fill_lo;
-wire dtlb_fill_cmd_v = dtlb_miss_r;
+wire dtlb_fill_cmd_v = dtlb_fill_lo;
 
 wire is_store = mmu_cmd_v_i & mmu_cmd.mem_op inside {e_sb, e_sh, e_sw, e_sd, e_scw, e_scd};
 
@@ -259,10 +258,7 @@ bp_be_csr
    ,.mstatus_mxr_o(mstatus_mxr_lo)
 
    ,.itlb_fill_o(itlb_fill_lo)
-   ,.instr_page_fault_o(instr_page_fault_lo)
-   ,.instr_access_fault_o(instr_access_fault_lo)
-   ,.instr_misaligned_o(instr_misaligned_lo)
-   ,.ebreak_o(ebreak_lo)
+   ,.dtlb_fill_o(dtlb_fill_lo)
    );
 
 bp_tlb
@@ -470,7 +466,8 @@ assign dtlb_w_vtag  = ptw_tlb_w_vaddr.tag;
 assign dtlb_w_entry = ptw_tlb_w_entry;
 
 // MMU response connections
-assign mem_resp.miss_v             = mmu_cmd_v_rr & ~dcache_v & ~dcache_fencei_v & ~store_page_fault_mem3 & ~load_page_fault_mem3 & ~store_access_fault_v & ~load_access_fault_mem3;
+assign mem_resp.cache_miss_v       = mmu_cmd_v_rr & ~dcache_v & ~dtlb_miss_r & ~dcache_fencei_v & ~store_page_fault_mem3 & ~load_page_fault_mem3 & ~store_access_fault_v & ~load_access_fault_mem3;
+assign mem_resp.tlb_miss_v         = mmu_cmd_v_rr & ~dcache_v &  dtlb_miss_r & ~dcache_fencei_v & ~store_page_fault_mem3 & ~load_page_fault_mem3 & ~store_access_fault_v & ~load_access_fault_mem3;
 assign mem_resp.fencei_v           = dcache_fencei_v;
 assign mem_resp.store_page_fault   = store_page_fault_mem3;
 assign mem_resp.load_page_fault    = load_page_fault_mem3;
