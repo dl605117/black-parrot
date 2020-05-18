@@ -112,7 +112,7 @@ logic [dword_width_p-1:0] csr_data;
 logic csr_exc;
 
 bp_be_mem_resp_s mem_resp;
-logic mem_resp_v, mem_resp_rdy;
+logic mem_resp_v;
 
 bp_be_calc_status_s    calc_status;
 
@@ -206,7 +206,6 @@ bp_be_calculator_top
 
    ,.mem_resp_i(mem_resp) 
    ,.mem_resp_v_i(mem_resp_v)
-   ,.mem_resp_ready_o(mem_resp_rdy)   
 
    ,.ptw_pkt_i(ptw_pkt)
    ,.commit_pkt_o(commit_pkt)
@@ -236,7 +235,6 @@ bp_be_mem_top
 
     ,.mem_resp_o(mem_resp)
     ,.mem_resp_v_o(mem_resp_v)
-    ,.mem_resp_ready_i(mem_resp_rdy)
     
     ,.ptw_pkt_o(ptw_pkt)
 

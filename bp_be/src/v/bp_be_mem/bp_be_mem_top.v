@@ -69,7 +69,6 @@ module bp_be_mem_top
 
    , output [mem_resp_width_lp-1:0]          mem_resp_o
    , output                                  mem_resp_v_o
-   , input                                   mem_resp_ready_i
 
    , output [ptw_pkt_width_lp-1:0]           ptw_pkt_o
 
@@ -144,9 +143,6 @@ assign commit_pkt = commit_pkt_i;
 assign trap_pkt_o = trap_pkt;
 assign ptw_pkt_o  = ptw_pkt;
 
-// Suppress unused signal warnings
-wire unused0 = mem_resp_ready_i;
-
 /* Internal connections */
 /* TLB ports */
 logic                    dtlb_en, dtlb_miss_v, dtlb_w_v, dtlb_r_v, dtlb_r_v_lo;
@@ -211,7 +207,6 @@ bsg_dff_chain
 wire ptw_page_fault_v  = ptw_instr_page_fault_v | ptw_load_page_fault_v | ptw_store_page_fault_v;
 wire exception_v_li = commit_pkt.v | ptw_page_fault_v;
 wire [vaddr_width_p-1:0] exception_pc_li = ptw_page_fault_v ? ptw_tlb_w_pc : commit_pkt.pc;
-//wire [vaddr_width_p-1:0] exception_npc_li = commit_pkt.npc;
 wire [vaddr_width_p-1:0] exception_npc_li = ptw_page_fault_v ? '0 : commit_pkt.npc;
 wire [vaddr_width_p-1:0] exception_vaddr_li = ptw_page_fault_v ? ptw_tlb_w_vaddr : mem_resp.vaddr;
 wire [instr_width_p-1:0] exception_instr_li = commit_pkt.instr;
