@@ -438,43 +438,6 @@ always_comb
         begin
           dtlb_fill_o = 1'b1;
         end
-      else if (csr_cmd.csr_op == e_op_take_interrupt)
-        begin
-          if (~is_debug_mode & m_interrupt_icode_v_li)
-            begin
-              priv_mode_n          = `PRIV_MODE_M;
-
-              mstatus_li.mpp       = priv_mode_r;
-              mstatus_li.mpie      = mstatus_lo.mie;
-              mstatus_li.mie       = 1'b0;
-
-              mepc_li              = paddr_width_p'($signed(exception_pc_i));
-              mtval_li             = '0;
-              mcause_li._interrupt = 1'b1;
-              mcause_li.ecode      = m_interrupt_icode_li;
-
-              exception_v_o        = 1'b0;
-              interrupt_v_o        = 1'b1;
-              ret_v_o              = 1'b0;
-            end
-          else if (~is_debug_mode & s_interrupt_icode_v_li)
-            begin
-              priv_mode_n          = `PRIV_MODE_S;
-
-              mstatus_li.spp       = priv_mode_r;
-              mstatus_li.spie      = mstatus_lo.sie;
-              mstatus_li.sie       = 1'b0;
-
-              sepc_li              = paddr_width_p'($signed(exception_pc_i));
-              stval_li             = '0;
-              scause_li._interrupt = 1'b1;
-              scause_li.ecode      = s_interrupt_icode_li;
-
-              exception_v_o        = 1'b0;
-              interrupt_v_o        = 1'b1;
-              ret_v_o              = 1'b0;
-            end
-        end
       else if (csr_cmd.csr_op == e_wfi)
         begin
           illegal_instr_o = mstatus_lo.tw;
@@ -653,6 +616,45 @@ always_comb
           dpc_li        = paddr_width_p'($signed(exception_npc_i));
           dcsr_li.cause = 4;
           dcsr_li.prv   = priv_mode_r;
+        end
+
+      // Check if there's a bubble, we also insert one
+      if (accept_irq_o & ~exception_v_i)
+        begin
+          if (~is_debug_mode & m_interrupt_icode_v_li)
+            begin
+              priv_mode_n          = `PRIV_MODE_M;
+
+              mstatus_li.mpp       = priv_mode_r;
+              mstatus_li.mpie      = mstatus_lo.mie;
+              mstatus_li.mie       = 1'b0;
+
+              mepc_li              = paddr_width_p'($signed(exception_pc_i));
+              mtval_li             = '0;
+              mcause_li._interrupt = 1'b1;
+              mcause_li.ecode      = m_interrupt_icode_li;
+
+              exception_v_o        = 1'b0;
+              interrupt_v_o        = 1'b1;
+              ret_v_o              = 1'b0;
+            end
+          else if (~is_debug_mode & s_interrupt_icode_v_li)
+            begin
+              priv_mode_n          = `PRIV_MODE_S;
+
+              mstatus_li.spp       = priv_mode_r;
+              mstatus_li.spie      = mstatus_lo.sie;
+              mstatus_li.sie       = 1'b0;
+
+              sepc_li              = paddr_width_p'($signed(exception_pc_i));
+              stval_li             = '0;
+              scause_li._interrupt = 1'b1;
+              scause_li.ecode      = s_interrupt_icode_li;
+
+              exception_v_o        = 1'b0;
+              interrupt_v_o        = 1'b1;
+              ret_v_o              = 1'b0;
+            end
         end
   end
 

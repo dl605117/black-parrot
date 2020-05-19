@@ -149,6 +149,7 @@ bp_be_detector
    ,.credits_empty_i(credits_empty_i)
    ,.debug_mode_i(debug_mode_i)
    ,.single_step_i(single_step_i)
+   ,.accept_irq_i(accept_irq_i)
 
    ,.chk_dispatch_v_o(chk_dispatch_v_o)
    );
@@ -162,7 +163,6 @@ bp_be_scheduler
    ,.cfg_bus_i(cfg_bus_i)
    ,.cfg_irf_data_o(cfg_irf_data_o)
 
-   ,.accept_irq_i(accept_irq_i)
    ,.isd_status_o(isd_status)
    ,.expected_npc_i(expected_npc_lo)
    ,.poison_iss_i(flush_o)
