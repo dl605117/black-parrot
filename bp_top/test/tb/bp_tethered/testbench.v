@@ -320,7 +320,7 @@ bind bp_be_top
            ,.rd_data_i(be_checker.scheduler.wb_pkt.rd_data)
 
            ,.interrupt_v_i(be_mem.csr.trap_pkt_cast_o._interrupt)
-           ,.cause_i(be_mem.csr.trap_pkt_cast_o.cause)
+           ,.cause_i(be_mem.csr.mcause_lo)
 
            ,.finish_o(testbench.cosim_finish_lo)
            );

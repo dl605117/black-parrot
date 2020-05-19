@@ -62,6 +62,12 @@ always_ff @(negedge reset_i)
      ,.data_o(decode_r)
      );
 
+  // We store cause in a compressed format in the CSR regfile
+  bp_mcause_s cause_cast_i;
+  assign cause_cast_i = cause_i;
+  rv64_mcause_s cause_li;
+  assign cause_li = `decompress_mcause_s(cause_cast_i);
+
   logic                     commit_v_r;
   logic [vaddr_width_p-1:0] commit_pc_r;
   logic [instr_width_p-1:0] commit_instr_r;
@@ -76,7 +82,7 @@ always_ff @(negedge reset_i)
     (.clk_i(clk_i)
      ,.reset_i(reset_i)
 
-     ,.data_i({commit_v_i, commit_pc_i, commit_instr_i, commit_rd_w_v_li, interrupt_v_i, cause_i})
+     ,.data_i({commit_v_i, commit_pc_i, commit_instr_i, commit_rd_w_v_li, interrupt_v_i, cause_li})
      ,.v_i(commit_v_i | interrupt_v_i)
      ,.ready_o()
 
