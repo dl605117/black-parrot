@@ -11,6 +11,8 @@ module bp_me_nonsynth_lce_tracer
   #(parameter bp_params_e bp_params_p = e_bp_half_core_cfg
     `declare_bp_proc_params(bp_params_p)
 
+    , parameter lce_req_max_data_width_p = dword_width_p
+
     , localparam lce_trace_file_p = "lce"
 
     , localparam block_size_in_bytes_lp=(cce_block_width_p / 8)
@@ -31,7 +33,7 @@ module bp_me_nonsynth_lce_tracer
     , localparam lg_num_cce_lp=`BSG_SAFE_CLOG2(num_cce_p)
 
     `declare_bp_lce_cce_if_header_widths(cce_id_width_p, lce_id_width_p, paddr_width_p, assoc_p)
-    `declare_bp_lce_cce_if_widths(cce_id_width_p, lce_id_width_p, paddr_width_p, assoc_p, dword_width_p, cce_block_width_p)
+    `declare_bp_lce_cce_if_widths(cce_id_width_p, lce_id_width_p, paddr_width_p, assoc_p, lce_req_max_data_width_p, cce_block_width_p)
   )
   (
     input                                                   clk_i
@@ -49,7 +51,7 @@ module bp_me_nonsynth_lce_tracer
     ,input                                                  tr_pkt_ready_i
 
     // LCE-CCE Interface
-    ,input [lce_cce_req_width_lp-1:0]                       lce_req_i
+    ,input [lce_cce_short_req_width_lp-1:0]                 lce_req_i
     ,input                                                  lce_req_v_i
     ,input                                                  lce_req_ready_i
 
@@ -66,11 +68,16 @@ module bp_me_nonsynth_lce_tracer
     ,input                                                  lce_cmd_o_ready_i
   );
 
+  initial begin
+    assert(lce_req_max_data_width_p <= cce_block_width_p) else
+      $error("LCE Request max data width must be no greater than CCE block width");
+  end
+
   // LCE-CCE interface structs
-  `declare_bp_lce_cce_if(cce_id_width_p, lce_id_width_p, paddr_width_p, assoc_p, dword_width_p, cce_block_width_p);
+  `declare_bp_lce_cce_if(cce_id_width_p, lce_id_width_p, paddr_width_p, assoc_p, lce_req_max_data_width_p, cce_block_width_p);
 
   // Structs for output messages
-  bp_lce_cce_req_s lce_req;
+  bp_lce_cce_short_req_s lce_req;
   bp_lce_cce_resp_s lce_resp;
   bp_lce_cmd_s lce_cmd, lce_cmd_lo;
   assign lce_req = lce_req_i;
@@ -117,8 +124,8 @@ module bp_me_nonsynth_lce_tracer
       end
 
       if (tr_pkt_v_o_i & tr_pkt_ready_i) begin
-        $fdisplay(file, "[%t]: LCE[%0d] TR resp uc[%b] addr[%H] set[%d] %H time[%0t]"
-                  , $time, lce_id_i, tr_resp.uncached, tr_resp.paddr
+        $fdisplay(file, "[%t]: LCE[%0d] TR resp cmd[%b] uc[%b] addr[%H] set[%d] %H time[%0t]"
+                  , $time, lce_id_i, tr_resp.cmd, tr_resp.uncached, tr_resp.paddr
                   , tr_resp.paddr[block_offset_bits_lp +: lg_sets_lp]
                   , tr_resp.data, $time-tr_start_t
                   );
@@ -130,10 +137,10 @@ module bp_me_nonsynth_lce_tracer
       // request to CCE
       if (lce_req_v_i & lce_req_ready_i) begin
         assert(lce_req.header.src_id == lce_id_i) else $error("Bad LCE Request - source mismatch");
-        $fdisplay(file, "[%t]: LCE[%0d] REQ addr[%H] cce[%0d] msg[%b] ne[%b] lru[%0d] size[%b]"
+        $fdisplay(file, "[%t]: LCE[%0d] REQ addr[%H] cce[%0d] msg[%b] ne[%b] lru[%0d] size[%b] %H"
                   , $time, lce_id_i, lce_req.header.addr, lce_req.header.dst_id, lce_req.header.msg_type
                   , lce_req.header.non_exclusive, lce_req.header.lru_way_id
-                  , lce_req.header.size
+                  , lce_req.header.size, lce_req.data
                   );
       end
 

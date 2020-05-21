@@ -16,7 +16,7 @@ module testbench
    `declare_bp_proc_params(bp_params_p)
 
    // interface widths
-   `declare_bp_lce_cce_if_widths(cce_id_width_p, lce_id_width_p, paddr_width_p, lce_assoc_p, cce_block_width_p, cce_block_width_p)
+   `declare_bp_lce_cce_if_widths(cce_id_width_p, lce_id_width_p, paddr_width_p, lce_assoc_p, dword_width_p, cce_block_width_p)
    `declare_bp_me_if_widths(paddr_width_p, cce_block_width_p, lce_id_width_p, lce_assoc_p)
 
    , parameter cce_trace_p = 0
@@ -62,7 +62,7 @@ module testbench
 
 `declare_bp_cfg_bus_s(vaddr_width_p, core_id_width_p, cce_id_width_p, lce_id_width_p, cce_pc_width_p, cce_instr_width_p);
 `declare_bp_me_if(paddr_width_p, cce_block_width_p, lce_id_width_p, lce_assoc_p);
-`declare_bp_lce_cce_if(cce_id_width_p, lce_id_width_p, paddr_width_p, lce_assoc_p, cce_block_width_p, cce_block_width_p);
+`declare_bp_lce_cce_if(cce_id_width_p, lce_id_width_p, paddr_width_p, lce_assoc_p, dword_width_p, cce_block_width_p);
 
 // CFG IF
 bp_cfg_bus_s           cfg_bus_lo;
@@ -76,7 +76,8 @@ bp_cce_mem_msg_s       mem_cmd;
 logic                  mem_cmd_v, mem_cmd_ready;
 
 // LCE-CCE IF
-bp_lce_cce_req_s       lce_req, lce_req_lo;
+bp_lce_cce_short_req_s lce_req_lo;
+bp_lce_cce_req_s       lce_req;
 logic                  lce_req_v, lce_req_v_lo, lce_req_yumi, lce_req_ready_li;
 bp_lce_cce_resp_s      lce_resp, lce_resp_lo;
 logic                  lce_resp_v, lce_resp_v_lo, lce_resp_yumi, lce_resp_ready_li;
@@ -222,7 +223,8 @@ lce_req_buffer
   ,.reset_i(reset_i)
   // from LCE
   ,.v_i(lce_req_v_lo)
-  ,.data_i(lce_req_lo)
+  // add 0's in high order bits to expand short request to regular request length
+  ,.data_i({'0, lce_req_lo})
   ,.ready_o(lce_req_ready_li)
   // to CCE
   ,.v_o(lce_req_v)
