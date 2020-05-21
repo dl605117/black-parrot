@@ -32,6 +32,7 @@ module bp_be_csr
     , input                             instret_i
 
     , input                             exception_v_i
+    , input                             ptw_busy_i
     , input                             fencei_v_i
     , input [vaddr_width_p-1:0]         exception_pc_i
     , input [vaddr_width_p-1:0]         exception_npc_i
@@ -490,7 +491,7 @@ always_comb
               `CSR_ADDR_MSTATUS: csr_data_lo = mstatus_lo;
               // MISA is optionally read-write, but all fields are read-only in BlackParrot
               //   64 bit MXLEN, AISU extensions
-              `CSR_ADDR_MISA: csr_data_lo = {2'b10, 36'b0, 26'h140101};
+              `CSR_ADDR_MISA: csr_data_lo = {2'b10, 36'b0, 26'h141101};
               `CSR_ADDR_MEDELEG: csr_data_lo = medeleg_lo;
               `CSR_ADDR_MIDELEG: csr_data_lo = mideleg_lo;
               `CSR_ADDR_MIE: csr_data_lo = mie_lo;
@@ -619,7 +620,7 @@ always_comb
         end
 
       // Check if there's a bubble, we also insert one
-      if (accept_irq_o & ~exception_v_i)
+      if (accept_irq_o & ~exception_v_i & ~ptw_busy_i & ~cfg_bus_cast_i.freeze)
         begin
           if (~is_debug_mode & m_interrupt_icode_v_li)
             begin
