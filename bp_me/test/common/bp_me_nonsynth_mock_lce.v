@@ -88,7 +88,7 @@ module bp_me_nonsynth_mock_lce
     , localparam lg_num_cce_lp=`BSG_SAFE_CLOG2(num_cce_p)
 
     `declare_bp_lce_cce_if_header_widths(cce_id_width_p, lce_id_width_p, paddr_width_p, assoc_p)
-    `declare_bp_lce_cce_if_widths(cce_id_width_p, lce_id_width_p, paddr_width_p, assoc_p, dword_width_p, cce_block_width_p)
+    `declare_bp_lce_cce_if_widths(cce_id_width_p, lce_id_width_p, paddr_width_p, assoc_p, cce_block_width_p, cce_block_width_p)
 
   )
   (
