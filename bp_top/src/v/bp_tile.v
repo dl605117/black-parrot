@@ -245,7 +245,9 @@ bp_coh_ready_and_link_s cce_lce_resp_link_li, cce_lce_resp_link_lo;
 for (genvar i = 0; i < 2; i++)
   begin : lce
     bp_me_wormhole_packet_encode_lce_req
-     #(.bp_params_p(bp_params_p))
+     #(.bp_params_p(bp_params_p)
+       ,.lce_req_max_data_width_p(dword_width_p)
+       )
      req_encode
       (.payload_i(lce_req_lo[i])
        ,.packet_o(lce_req_packet_lo[i])

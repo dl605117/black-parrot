@@ -105,7 +105,9 @@ module bp_cacc_tile
 ////////////////////////////////////////////////////////////////////
   lce_req_packet_s lce_req_packet_li, lce_req_packet_lo;
   bp_me_wormhole_packet_encode_lce_req
-   #(.bp_params_p(bp_params_p))
+   #(.bp_params_p(bp_params_p)
+     ,.lce_req_max_data_width_p(dword_width_p)
+     )
    req_encode
     (.payload_i(lce_req_lo)
      ,.packet_o(lce_req_packet_lo)

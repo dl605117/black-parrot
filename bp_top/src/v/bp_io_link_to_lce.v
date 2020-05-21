@@ -74,7 +74,7 @@ module bp_io_link_to_lce
   always_comb
     begin
       lce_req_lo                    = '0;
-      lce_req_lo.data               = io_cmd_li.data;
+      lce_req_lo.data               = io_cmd_li.data[0+:dword_width_p];
       lce_req_lo.header.size        = io_cmd_li.header.size;
       lce_req_lo.header.addr        = io_cmd_li.header.addr;
       lce_req_lo.header.msg_type    = io_cmd_wr_not_rd ? e_lce_req_type_uc_wr : e_lce_req_type_uc_rd;
