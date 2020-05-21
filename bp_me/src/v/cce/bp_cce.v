@@ -499,9 +499,9 @@ module bp_cce
       ,.src_a_i(src_a)
       ,.alu_res_i(alu_res_lo)
 
-      ,.lce_req_i(lce_req)
-      ,.lce_resp_i(lce_resp)
-      ,.mem_resp_i(mem_resp)
+      ,.lce_req_header_i(lce_req.header)
+      ,.lce_resp_header_i(lce_resp.header)
+      ,.mem_resp_header_i(mem_resp.header)
 
       ,.pending_i(pending_lo)
 

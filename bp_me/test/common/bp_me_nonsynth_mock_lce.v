@@ -600,7 +600,7 @@ module bp_me_nonsynth_mock_lce
               ? e_mem_msg_size_2
               : e_mem_msg_size_1;
 
-        lce_req.data = (mshr_r.store_op) ? cmd.data : '0;
+        lce_req.data[0+:dword_width_p] = (mshr_r.store_op) ? cmd.data : '0;
 
         // wait for LCE req outbound to be ready (r&v), then wait for responses
         lce_state_n = (lce_req_ready_i)
