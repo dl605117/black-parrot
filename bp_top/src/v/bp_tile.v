@@ -80,12 +80,13 @@ bp_lce_cmd_s      [1:0] lce_cmd_lo;
 logic             [1:0] lce_cmd_v_lo, lce_cmd_ready_li;
 
 // CCE connections
-bp_lce_cce_req_s  cce_lce_req_li;
-logic             cce_lce_req_v_li, cce_lce_req_yumi_lo;
-bp_lce_cmd_s      cce_lce_cmd_lo;
-logic             cce_lce_cmd_v_lo, cce_lce_cmd_ready_li;
-bp_lce_cce_resp_s cce_lce_resp_li;
-logic             cce_lce_resp_v_li, cce_lce_resp_yumi_lo;
+// LCE Request to CCE supports up to block width of data
+bp_lce_cce_block_req_s  cce_lce_req_li;
+logic                   cce_lce_req_v_li, cce_lce_req_yumi_lo;
+bp_lce_cmd_s            cce_lce_cmd_lo;
+logic                   cce_lce_cmd_v_lo, cce_lce_cmd_ready_li;
+bp_lce_cce_resp_s       cce_lce_resp_li;
+logic                   cce_lce_resp_v_li, cce_lce_resp_yumi_lo;
 
 // Mem connections
 bp_cce_mem_msg_s       cce_mem_cmd_lo;

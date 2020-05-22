@@ -60,10 +60,10 @@
  * addr is the cache missing address                                                                     \
  * lru_way_id indicates the way within the target set that will be used to fill the miss in to           \
  *                                                                                                       \
- * Note: both "short" and regular length LCE Request structs are defined. A regular request              \
- *       supports data packets up to the CCE block width size. A "short" request supports                \
- *       LCE requests with data up to the lce_req_max_data_width_mp size. Short requests are             \
- *       used by LCEs that limit the size of uncached access to be less than a full CCE block.           \
+ * Note: Two LCE Request structs are defined. A regular request supports data packets up to size         \
+ *       specified by lce_req_max_data_width_mp parameter. A block request supports data up to           \
+ *       cce_block_width_mp in size. Regular requests are typically used by D$ and I$, whereas           \
+ *       block requests can be used by LCEs that need to do uncached access for full blocks.             \
  */                                                                                                      \
   typedef struct packed                                                                                  \
   {                                                                                                      \
@@ -80,13 +80,13 @@
   {                                                                                                      \
     logic [lce_req_max_data_width_mp-1:0]        data;                                                   \
     bp_lce_cce_req_header_s                      header;                                                 \
-  } bp_lce_cce_short_req_s;                                                                              \
+  } bp_lce_cce_req_s;                                                                                    \
                                                                                                          \
   typedef struct packed                                                                                  \
   {                                                                                                      \
     logic [cce_block_width_mp-1:0]               data;                                                   \
     bp_lce_cce_req_header_s                      header;                                                 \
-  } bp_lce_cce_req_s;                                                                                    \
+  } bp_lce_cce_block_req_s;                                                                              \
                                                                                                          \
 /**                                                                                                      \
  *  bp_lce_cmd_s is the generic message for LCE Command and LCE Data Command that is sent across the     \
