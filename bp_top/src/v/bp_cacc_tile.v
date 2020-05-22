@@ -43,7 +43,8 @@ module bp_cacc_tile
   `declare_bsg_ready_and_link_sif_s(coh_noc_flit_width_p, bp_coh_ready_and_link_s);
  
   //io-cce-side connections 
-  bp_lce_cce_req_s  cce_lce_req_li;
+  // io-cce uses block width requests
+  bp_lce_cce_block_req_s  cce_lce_req_li;
   logic cce_lce_req_v_li, cce_lce_req_yumi_lo;
   bp_lce_cmd_s cce_lce_cmd_lo;
   logic cce_lce_cmd_v_lo, cce_lce_cmd_ready_li;

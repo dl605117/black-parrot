@@ -9,46 +9,43 @@ module bp_io_link_to_lce
  import bp_me_pkg::*;
  #(parameter bp_params_e bp_params_p = e_bp_inv_cfg
    `declare_bp_proc_params(bp_params_p)
-   , parameter lce_req_max_data_width_p = cce_block_width_p
    `declare_bp_me_if_widths(paddr_width_p, cce_block_width_p, lce_id_width_p, lce_assoc_p)
-   `declare_bp_lce_cce_if_widths(cce_id_width_p, lce_id_width_p, paddr_width_p, lce_assoc_p, lce_req_max_data_width_p, cce_block_width_p)
+   `declare_bp_lce_cce_if_widths(cce_id_width_p, lce_id_width_p, paddr_width_p, lce_assoc_p, cce_block_width_p, cce_block_width_p)
 
    , localparam coh_noc_ral_link_width_lp = `bsg_ready_and_link_sif_width(coh_noc_flit_width_p)
    , localparam mem_noc_ral_link_width_lp = `bsg_ready_and_link_sif_width(mem_noc_flit_width_p)
    )
-  (input                                 clk_i
-   , input                               reset_i
+  (input                                       clk_i
+   , input                                     reset_i
 
-   , input [lce_id_width_p-1:0]          lce_id_i
+   , input [lce_id_width_p-1:0]                lce_id_i
 
-   , input [cce_mem_msg_width_lp-1:0]    io_cmd_i
-   , input                               io_cmd_v_i
-   , output                              io_cmd_yumi_o
+   , input [cce_mem_msg_width_lp-1:0]          io_cmd_i
+   , input                                     io_cmd_v_i
+   , output                                    io_cmd_yumi_o
 
-   , output [cce_mem_msg_width_lp-1:0]   io_resp_o
-   , output                              io_resp_v_o
-   , input                               io_resp_ready_i
+   , output [cce_mem_msg_width_lp-1:0]         io_resp_o
+   , output                                    io_resp_v_o
+   , input                                     io_resp_ready_i
 
-   , output [lce_cce_req_width_lp-1:0]   lce_req_o
-   , output                              lce_req_v_o
-   , input                               lce_req_ready_i
+   , output [lce_cce_block_req_width_lp-1:0]   lce_req_o
+   , output                                    lce_req_v_o
+   , input                                     lce_req_ready_i
 
-   , input [lce_cmd_width_lp-1:0]        lce_cmd_i
-   , input                               lce_cmd_v_i
-   , output                              lce_cmd_yumi_o
+   , input [lce_cmd_width_lp-1:0]              lce_cmd_i
+   , input                                     lce_cmd_v_i
+   , output                                    lce_cmd_yumi_o
 
    // No lce_resp acknowledgements for I/O (uncached) accesses
    );
 
-  `declare_bp_lce_cce_if(cce_id_width_p, lce_id_width_p, paddr_width_p, lce_assoc_p, lce_req_max_data_width_p, cce_block_width_p)
+  `declare_bp_lce_cce_if(cce_id_width_p, lce_id_width_p, paddr_width_p, lce_assoc_p, cce_block_width_p, cce_block_width_p)
   `declare_bp_me_if(paddr_width_p, cce_block_width_p, lce_id_width_p, lce_assoc_p)
-  `declare_bsg_wormhole_concentrator_packet_s(coh_noc_cord_width_p, coh_noc_len_width_p, coh_noc_cid_width_p, lce_cce_req_width_lp, lce_req_packet_s);
-  `declare_bsg_wormhole_concentrator_packet_s(coh_noc_cord_width_p, coh_noc_len_width_p, coh_noc_cid_width_p, lce_cmd_width_lp, lce_cmd_packet_s);
 
   bp_cce_mem_msg_s io_cmd_li;
   bp_cce_mem_msg_s io_resp_lo;
-  bp_lce_cce_req_s lce_req_lo;
-  bp_lce_cmd_s lce_cmd_li; 
+  bp_lce_cce_block_req_s lce_req_lo;
+  bp_lce_cmd_s           lce_cmd_li; 
 
   assign io_cmd_li  = io_cmd_i;
   assign io_resp_o  = io_resp_lo;
@@ -75,7 +72,7 @@ module bp_io_link_to_lce
   always_comb
     begin
       lce_req_lo                    = '0;
-      lce_req_lo.data               = io_cmd_li.data[0+:dword_width_p];
+      lce_req_lo.data               = io_cmd_li.data;
       lce_req_lo.header.size        = io_cmd_li.header.size;
       lce_req_lo.header.addr        = io_cmd_li.header.addr;
       lce_req_lo.header.msg_type    = io_cmd_wr_not_rd ? e_lce_req_type_uc_wr : e_lce_req_type_uc_rd;

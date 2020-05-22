@@ -43,6 +43,7 @@ initial
 
     $display("########### LCE-CCE IF ##############");
     $display("bp_lce_cce_req_s       bits: struct %d width %d", $bits(bp_lce_cce_req_s), lce_cce_req_width_lp);
+    $display("bp_lce_cce_block_req_s bits: struct %d width %d", $bits(bp_lce_cce_block_req_s), lce_cce_block_req_width_lp);
     $display("bp_lce_cmd_s           bits: struct %d width %d", $bits(bp_lce_cmd_s), lce_cmd_width_lp);
     $display("bp_lce_cce_resp_s      bits: struct %d width %d", $bits(bp_lce_cce_resp_s), lce_cce_resp_width_lp);
 

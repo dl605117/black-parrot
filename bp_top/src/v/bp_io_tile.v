@@ -6,8 +6,7 @@ module bp_io_tile
  import bp_me_pkg::*;
  #(parameter bp_params_e bp_params_p = e_bp_inv_cfg
    `declare_bp_proc_params(bp_params_p)
-   , parameter lce_req_max_data_width_p = cce_block_width_p
-   `declare_bp_lce_cce_if_widths(cce_id_width_p, lce_id_width_p, paddr_width_p, lce_assoc_p, lce_req_max_data_width_p, cce_block_width_p)
+   `declare_bp_lce_cce_if_widths(cce_id_width_p, lce_id_width_p, paddr_width_p, lce_assoc_p, cce_block_width_p, cce_block_width_p)
    `declare_bp_me_if_widths(paddr_width_p, cce_block_width_p, lce_id_width_p, lce_assoc_p)
 
    , localparam coh_noc_ral_link_width_lp = `bsg_ready_and_link_sif_width(coh_noc_flit_width_p)
@@ -34,11 +33,11 @@ module bp_io_tile
    );
 
   `declare_bp_me_if(paddr_width_p, cce_block_width_p, lce_id_width_p, lce_assoc_p);
-  `declare_bp_lce_cce_if(cce_id_width_p, lce_id_width_p, paddr_width_p, lce_assoc_p, lce_req_max_data_width_p, cce_block_width_p);
-  `declare_bsg_wormhole_concentrator_packet_s(coh_noc_cord_width_p, coh_noc_len_width_p, coh_noc_cid_width_p, lce_cce_req_width_lp, lce_req_packet_s);
+  `declare_bp_lce_cce_if(cce_id_width_p, lce_id_width_p, paddr_width_p, lce_assoc_p, cce_block_width_p, cce_block_width_p);
+  `declare_bsg_wormhole_concentrator_packet_s(coh_noc_cord_width_p, coh_noc_len_width_p, coh_noc_cid_width_p, lce_cce_block_req_width_lp, lce_req_packet_s);
   `declare_bsg_wormhole_concentrator_packet_s(coh_noc_cord_width_p, coh_noc_len_width_p, coh_noc_cid_width_p, lce_cmd_width_lp, lce_cmd_packet_s);
 
-  bp_lce_cce_req_s  cce_lce_req_li, lce_lce_req_lo;
+  bp_lce_cce_block_req_s cce_lce_req_li, lce_lce_req_lo;
   logic cce_lce_req_v_li, cce_lce_req_yumi_lo, lce_lce_req_v_lo, lce_lce_req_ready_li;
   bp_lce_cmd_s cce_lce_cmd_lo, lce_lce_cmd_li;
   logic cce_lce_cmd_v_lo, cce_lce_cmd_ready_li, lce_lce_cmd_v_li, lce_lce_cmd_yumi_lo;
@@ -113,7 +112,7 @@ module bp_io_tile
   lce_req_packet_s lce_req_packet_li, lce_req_packet_lo;
   bp_me_wormhole_packet_encode_lce_req
    #(.bp_params_p(bp_params_p)
-     ,.lce_req_max_data_width_p(lce_req_max_data_width_p)
+     ,.lce_req_max_data_width_p(cce_block_width_p)
      )
    req_encode
     (.payload_i(lce_lce_req_lo)
