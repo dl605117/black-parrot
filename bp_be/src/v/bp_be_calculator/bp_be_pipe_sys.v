@@ -132,7 +132,7 @@ always_comb
       end
   end
 assign csr_cmd_o = csr_cmd_lo;
-assign csr_cmd_v_o = (csr_cmd_v_lo & ~kill_ex3_i) | ptw_pkt.instr_page_fault_v | ptw_pkt.load_page_fault_v | ptw_pkt.store_page_fault_v | mem_resp.tlb_miss_v;
+assign csr_cmd_v_o = (csr_cmd_v_lo & ~kill_ex3_i) | ptw_pkt.instr_page_fault_v | ptw_pkt.load_page_fault_v | ptw_pkt.store_page_fault_v | mem_resp.tlb_miss_v | mem_resp.store_page_fault | mem_resp.load_page_fault | mem_resp.store_access_fault | mem_resp.store_misaligned | mem_resp.load_access_fault | mem_resp.load_misaligned;
 
 assign data_o           = csr_data_i;
 assign exc_v_o          = csr_exc_i;
