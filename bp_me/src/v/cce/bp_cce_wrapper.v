@@ -32,7 +32,7 @@ module bp_cce_wrapper
    , output [cce_instr_width_p-1:0]                    cfg_cce_ucode_data_o
 
    // LCE-CCE Interface
-   , input [lce_cce_req_width_lp-1:0]                  lce_req_i
+   , input [lce_cce_block_req_width_lp-1:0]            lce_req_i
    , input                                             lce_req_v_i
    , output logic                                      lce_req_yumi_o
 

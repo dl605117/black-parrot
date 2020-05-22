@@ -44,7 +44,7 @@ module bp_cce
    , output [cce_instr_width_p-1:0]                    cfg_cce_ucode_data_o
 
    // LCE-CCE Interface
-   , input [lce_cce_req_width_lp-1:0]                  lce_req_i
+   , input [lce_cce_block_req_width_lp-1:0]            lce_req_i
    , input                                             lce_req_v_i
    , output logic                                      lce_req_yumi_o
 
@@ -104,7 +104,7 @@ module bp_cce
   assign cfg_bus_cast_i = cfg_bus_i;
 
   // Message casting
-  bp_lce_cce_req_s  lce_req;
+  bp_lce_cce_block_req_s  lce_req;
   bp_lce_cce_resp_s lce_resp;
   bp_lce_cmd_s      lce_cmd;
   bp_cce_mem_msg_s  mem_cmd, mem_resp;

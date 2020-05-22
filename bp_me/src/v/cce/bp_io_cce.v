@@ -9,33 +9,33 @@ module bp_io_cce
    `declare_bp_lce_cce_if_widths(cce_id_width_p, lce_id_width_p, paddr_width_p, lce_assoc_p, cce_block_width_p, cce_block_width_p)
    `declare_bp_me_if_widths(paddr_width_p, cce_block_width_p, lce_id_width_p, lce_assoc_p)
    )
-  (input                                clk_i
-   , input                              reset_i
+  (input                                      clk_i
+   , input                                    reset_i
 
-   , input [cce_id_width_p-1:0]         cce_id_i
+   , input [cce_id_width_p-1:0]               cce_id_i
 
-   , input [lce_cce_req_width_lp-1:0]   lce_req_i
-   , input                              lce_req_v_i
-   , output                             lce_req_yumi_o
+   , input [lce_cce_block_req_width_lp-1:0]   lce_req_i
+   , input                                    lce_req_v_i
+   , output                                   lce_req_yumi_o
 
-   , output [lce_cmd_width_lp-1:0]      lce_cmd_o
-   , output                             lce_cmd_v_o
-   , input                              lce_cmd_ready_i
+   , output [lce_cmd_width_lp-1:0]            lce_cmd_o
+   , output                                   lce_cmd_v_o
+   , input                                    lce_cmd_ready_i
 
-   , output [cce_mem_msg_width_lp-1:0]   io_cmd_o
-   , output                             io_cmd_v_o
-   , input                              io_cmd_ready_i
+   , output [cce_mem_msg_width_lp-1:0]        io_cmd_o
+   , output                                   io_cmd_v_o
+   , input                                    io_cmd_ready_i
 
-   , input [cce_mem_msg_width_lp-1:0]    io_resp_i
-   , input                              io_resp_v_i
-   , output                             io_resp_yumi_o
+   , input [cce_mem_msg_width_lp-1:0]         io_resp_i
+   , input                                    io_resp_v_i
+   , output                                   io_resp_yumi_o
    );
 
   `declare_bp_me_if(paddr_width_p, cce_block_width_p, lce_id_width_p, lce_assoc_p);
   `declare_bp_lce_cce_if(cce_id_width_p, lce_id_width_p, paddr_width_p, lce_assoc_p, cce_block_width_p, cce_block_width_p);
 
-  bp_lce_cce_req_s  lce_req_cast_i;
-  bp_lce_cmd_s      lce_cmd_cast_o;
+  bp_lce_cce_block_req_s  lce_req_cast_i;
+  bp_lce_cmd_s            lce_cmd_cast_o;
 
   bp_cce_mem_msg_s  io_cmd_cast_o;
   bp_cce_mem_msg_s  io_resp_cast_i;

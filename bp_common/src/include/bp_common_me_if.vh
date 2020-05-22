@@ -292,8 +292,8 @@ typedef enum logic [2:0]
   (`bp_lce_cce_resp_header_width(cce_id_width_mp,lce_id_width_mp,paddr_width_mp)+cce_block_width_mp)
 
 `define declare_bp_lce_cce_if_widths(cce_id_width_mp, lce_id_width_mp, paddr_width_mp, lce_assoc_mp, lce_req_max_data_width_mp, cce_block_width_mp)    \
-    , localparam lce_cce_short_req_width_lp=`bp_lce_cce_req_width(cce_id_width_mp, lce_id_width_mp, paddr_width_mp, lce_assoc_mp, lce_req_max_data_width_mp) \
-    , localparam lce_cce_req_width_lp=`bp_lce_cce_req_width(cce_id_width_mp, lce_id_width_mp, paddr_width_mp, lce_assoc_mp, cce_block_width_mp) \
+    , localparam lce_cce_req_width_lp=`bp_lce_cce_req_width(cce_id_width_mp, lce_id_width_mp, paddr_width_mp, lce_assoc_mp, lce_req_max_data_width_mp) \
+    , localparam lce_cce_block_req_width_lp=`bp_lce_cce_req_width(cce_id_width_mp, lce_id_width_mp, paddr_width_mp, lce_assoc_mp, cce_block_width_mp) \
     , localparam lce_cmd_width_lp=`bp_lce_cmd_width(cce_id_width_mp, lce_id_width_mp, paddr_width_mp, lce_assoc_mp, cce_block_width_mp)    \
     , localparam lce_cce_resp_width_lp=`bp_lce_cce_resp_width(cce_id_width_mp, lce_id_width_mp, paddr_width_mp, cce_block_width_mp)
 

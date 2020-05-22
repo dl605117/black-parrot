@@ -59,7 +59,7 @@ module bp_cce_src_sel
    , input                                                          mem_resp_v_i
    , input                                                          lce_resp_v_i
    , input                                                          lce_req_v_i
-   , input [lce_cce_req_width_lp-1:0]                               lce_req_i
+   , input [lce_cce_block_req_width_lp-1:0]                         lce_req_i
    , input [lce_cce_resp_width_lp-1:0]                              lce_resp_i
    , input [cce_mem_msg_width_lp-1:0]                               mem_resp_i
 
@@ -96,7 +96,7 @@ module bp_cce_src_sel
   `declare_bp_lce_cce_if(cce_id_width_p, lce_id_width_p, paddr_width_p, lce_assoc_p, cce_block_width_p, cce_block_width_p);
 
   // Message casting
-  bp_lce_cce_req_s  lce_req;
+  bp_lce_cce_block_req_s  lce_req;
   bp_lce_cce_resp_s lce_resp;
   bp_cce_mem_msg_s  mem_resp;
   assign lce_req   = lce_req_i;

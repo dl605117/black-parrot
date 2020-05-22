@@ -51,7 +51,7 @@ module bp_cce_fsm
    , output [cce_instr_width_p-1:0]                    cfg_cce_ucode_data_o
 
    // LCE-CCE Interface
-   , input [lce_cce_req_width_lp-1:0]                  lce_req_i
+   , input [lce_cce_block_req_width_lp-1:0]            lce_req_i
    , input                                             lce_req_v_i
    , output logic                                      lce_req_yumi_o
 
@@ -95,7 +95,7 @@ module bp_cce_fsm
   `declare_bp_me_if(paddr_width_p, cce_block_width_p, lce_id_width_p, lce_assoc_p);
   `declare_bp_lce_cce_if(cce_id_width_p, lce_id_width_p, paddr_width_p, lce_assoc_p, cce_block_width_p, cce_block_width_p);
 
-  bp_lce_cce_req_s lce_req;
+  bp_lce_cce_block_req_s lce_req;
   bp_lce_cce_resp_s lce_resp;
   bp_lce_cmd_s lce_cmd;
 
@@ -791,7 +791,7 @@ module bp_cce_fsm
           // Uncached Store
           if (lce_req.header.msg_type == e_lce_req_type_uc_wr) begin
             mem_cmd.header.msg_type = e_cce_mem_uc_wr;
-            mem_cmd.data[0+:cce_block_width_p] = lce_req.data;
+            mem_cmd.data = lce_req.data;
           // Uncached Load
           end else begin
             mem_cmd.header.msg_type = e_cce_mem_uc_rd;
@@ -879,7 +879,7 @@ module bp_cce_fsm
           // Uncached Store
           if (mshr_r.flags[e_opd_rqf]) begin
             mem_cmd.header.msg_type = e_cce_mem_uc_wr;
-            mem_cmd.data[0+:cce_block_width_p] = lce_req.data;
+            mem_cmd.data = lce_req.data;
           // Uncached Load
           end else begin
             mem_cmd.header.msg_type = e_cce_mem_uc_rd;

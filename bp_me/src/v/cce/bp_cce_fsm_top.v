@@ -51,7 +51,7 @@ module bp_cce_fsm_top
    // LCE-CCE Interface
    // inbound: ready&valid
    // Inputs to CCE from LCE are buffered by two element FIFOs
-   , input [lce_cce_req_width_lp-1:0]                      lce_req_i
+   , input [lce_cce_block_req_width_lp-1:0]                lce_req_i
    , input                                                 lce_req_v_i
    , output logic                                          lce_req_ready_o
 
@@ -78,7 +78,7 @@ module bp_cce_fsm_top
    , input                                                 mem_cmd_yumi_i
   );
 
-  logic [lce_cce_req_width_lp-1:0]               lce_req_to_cce;
+  logic [lce_cce_block_req_width_lp-1:0]         lce_req_to_cce;
   logic                                          lce_req_v_to_cce;
   logic                                          lce_req_yumi_from_cce;
   logic [lce_cce_resp_width_lp-1:0]              lce_resp_to_cce;
@@ -99,7 +99,7 @@ module bp_cce_fsm_top
 
   // Inbound LCE to CCE
   bsg_two_fifo
-    #(.width_p(lce_cce_req_width_lp)
+    #(.width_p(lce_cce_block_req_width_lp)
       )
     lce_cce_req_fifo
      (.clk_i(clk_i)
