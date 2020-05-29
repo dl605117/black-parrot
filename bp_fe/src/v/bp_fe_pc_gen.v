@@ -387,7 +387,7 @@ assign ovr_taken    = btb_miss_br & ((is_br & pc_gen_stage_r[0].bht) | is_jal);
 assign br_target    = pc_gen_stage_r[1].pc + scan_instr.imm;
 
 assign return_addr_n = pc_gen_stage_r[1].pc + vaddr_width_p'(4);
-/*bsg_dff_reset_en
+bsg_dff_reset_en
  #(.width_p(vaddr_width_p))
  ras
   (.clk_i(clk_i)
@@ -396,9 +396,9 @@ assign return_addr_n = pc_gen_stage_r[1].pc + vaddr_width_p'(4);
 
    ,.data_i(return_addr_n)
    ,.data_o(return_addr_r)
-   );*/
+   );
 
-bp_fe_ras
+/*bp_fe_ras
  #(.width_p(vaddr_width_p), .ras_ele(4))
  ras
   (.clk_i(clk_i)
@@ -407,7 +407,7 @@ bp_fe_ras
    ,.ovr_ret_i(ovr_ret)
    ,.return_addr_i(return_addr_n)
    ,.return_addr_o(return_addr_r)
-  );
+  );*/
 
 // We can't fetch from wait state, only run and coming out of stall.
 // We wait until both the FE queue and I$ are ready, but flushes invalidate the fetch.

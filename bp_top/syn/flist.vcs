@@ -193,6 +193,7 @@ $BP_FE_DIR/src/v/bp_fe_lce_req.v
 $BP_FE_DIR/src/v/bp_fe_mem.v
 $BP_FE_DIR/src/v/bp_fe_pc_gen.v
 $BP_FE_DIR/src/v/bp_fe_top.v
+$BP_FE_DIR/src/v/bp_fe_ras.v
 ## ME files
 # Cache
 $BP_ME_DIR/src/v/cache/bp_me_cache_dma_to_cce.v
