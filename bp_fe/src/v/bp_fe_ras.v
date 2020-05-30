@@ -1,6 +1,6 @@
 module bp_fe_ras
-#(parameter width_p = inv,
-  parameter ras_ele = inv,
+#(parameter width_p = 1,
+  parameter ras_ele = 1
 )
 ( input clk_i
 , input reset_i
@@ -8,7 +8,7 @@ module bp_fe_ras
 , input ovr_ret_i
 , input [width_p-1:0] return_addr_i
 , output [width_p-1:0] return_addr_o
-)
+);
 
 logic [width_p-1:0] return_addr [0:ras_ele-1];
 logic [`BSG_SAFE_CLOG2(ras_ele)-1:0] lru [0:ras_ele-1];
@@ -56,13 +56,17 @@ end
    end
 endgenerate
 
+logic [width_p-1:0] return_mux;
 integer k;
 always_comb begin
-	return_addr_o = 0;
+	//return_addr_o = 0;
 	for ( k = 0; k < ras_ele; k++ ) begin
 		if ( lru[k] == ras_ele-1 )
-			return_addr_o = return_addr[k];
+			return_mux = return_addr[k];
+		else 
+			return_mux = '0;
 	end
 end
 
+	assign return_addr_o = return_mux;
 endmodule
