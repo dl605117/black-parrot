@@ -11,7 +11,8 @@ module bp_fe_ras
 );
 
 logic [width_p-1:0] return_addr [0:ras_ele-1];
-logic [`BSG_SAFE_CLOG2(ras_ele)-1:0] lru [0:ras_ele-1];
+logic unsigned [$clog2(ras_ele)-1:0] lru [0:ras_ele-1];
+logic unsigned [$clog2(ras_ele)-1:0] counter;
 
 
 integer j;
@@ -20,22 +21,26 @@ always_ff @(posedge clk_i) begin
   	for(j =0; j < ras_ele; j++) begin
   	  lru[j] <= j;
   	end
+    counter <= 0;
   end
   else begin
    if(is_call_i) begin
      for(j=0; j < ras_ele; j++) begin
        lru[j] <= lru[j] - 1;
      end
+     counter <= counter - 1;
    end
    else if (ovr_ret_i) begin
      for(j=0; j < ras_ele; j++) begin
        lru[j] <= lru[j] + 1;
      end
+     counter <= counter + 1;
    end
    else begin
    	 for(j=0; j < ras_ele; j++) begin
    	   lru[j] <= lru[j];
    	 end
+     counter <= counter;
    end
   end
 end
@@ -56,17 +61,6 @@ end
    end
 endgenerate
 
-logic [width_p-1:0] return_mux;
-integer k;
-always_comb begin
-	//return_addr_o = 0;
-	for ( k = 0; k < ras_ele; k++ ) begin
-		if ( lru[k] == ras_ele-1 )
-			return_mux = return_addr[k];
-		else 
-			return_mux = '0;
-	end
-end
 
-	assign return_addr_o = return_mux;
+	assign return_addr_o = return_addr[counter];
 endmodule
